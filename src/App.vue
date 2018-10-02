@@ -8,7 +8,17 @@
     <script>
     import Notebook from './components/Notebook'
     import Page from './components/Page'
+    import Firebase from 'firebase'
 
+   var database = Firebase.initializeApp({
+      apiKey: 'AIzaSyDG02SKCHwfaWdNR4rylICg1KBE9U70lpM',
+      authDomain: 'gartbook-852fd.firebaseapp.com',
+      databaseURL: 'https://gartbook-852fd.firebaseio.com',
+      projectId: 'gartbook-852fd',
+      storageBucket: 'gartbook-852fd.appspot.com',
+      messagingSenderId: '427192969962'
+  }).database().ref();
+   
     export default {
       name: 'app',
       components: {
