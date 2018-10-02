@@ -1,4 +1,4 @@
-    <template>
+<template>
       <div id="app">
           <Notebook @change-page="changePage" @new-page="newPage" :pages="pages" :activePage="index" />
           <Page @save-page="savePage" @delete-page="deletePage" :page="pages[index]" />
@@ -10,15 +10,15 @@
     import Page from './components/Page'
     import Firebase from 'firebase'
 
-   var database = Firebase.initializeApp({
+    var database = Firebase.initializeApp({
       apiKey: 'AIzaSyDG02SKCHwfaWdNR4rylICg1KBE9U70lpM',
       authDomain: 'gartbook-852fd.firebaseapp.com',
       databaseURL: 'https://gartbook-852fd.firebaseio.com',
       projectId: 'gartbook-852fd',
       storageBucket: 'gartbook-852fd.appspot.com',
       messagingSenderId: '427192969962'
-  }).database().ref();
-   
+    }).database().ref();
+
     export default {
       name: 'app',
       components: {
@@ -29,6 +29,17 @@
         pages: [],
         index: 0
       }),
+      mounted() {
+        database.once('value', (pages) => {
+          pages.forEach((page) => {
+            this.pages.push({
+              ref: page.ref,
+              title: page.child('title').val(),
+              content: page.child('content').val()
+            })
+          })
+        })
+      },
       methods: {
         newPage () {
           this.pages.push({
@@ -41,9 +52,25 @@
           this.index = index
         },
         savePage () {
-           // nothing as of yet
+          var page = this.pages[this.index]
+          if (page.ref) {
+            this.updateExistingPage(page)
+          } else {
+            this.insertNewPage(page)
+          }
+        },
+        updateExistingPage (page) {
+          page.ref.set({
+            title: page.title,
+            content: page.content
+          })
+        },
+        insertNewPage (page) {
+          page.ref = database.push(page)
         },
         deletePage () {
+          var ref = this.pages[this.index].ref
+          ref && ref.remove()
           this.pages.splice(this.index, 1)
           this.index = Math.max(this.index - 1, 0)
         }
@@ -66,3 +93,4 @@
         flex-direction: row;
     }
     </style>
+  
